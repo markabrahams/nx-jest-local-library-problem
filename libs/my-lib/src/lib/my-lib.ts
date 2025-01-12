@@ -1,3 +1,3 @@
-export function myLib(): string {
-  return 'my-lib';
+export function hello(name: string): string {
+  return `Hello, ${name}!`;
 }

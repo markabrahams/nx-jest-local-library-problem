@@ -1,5 +1,5 @@
 {
-  "name": "@nx-apps-preset-template/my-lib",
+  "name": "@nx-jest-local-library-problem/my-lib",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
