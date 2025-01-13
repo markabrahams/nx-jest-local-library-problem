@@ -1,96 +1,101 @@
-# NxAppsPresetTemplate
+# Nx Jest globalSetup failure to find library
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+This is a reproduction repo to demonstrate Jest not finding library dependencies when running its globalSetup code.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+This repo is in the broken state.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+To reproduce the problem, clone the repo, install npm modules:
 
-## Run tasks
-
-To run tasks with Nx use:
-
-```sh
-npx nx <target> <project-name>
+```
+git clone https://github.com/markabrahams/nx-jest-local-library-problem.git
+cd nx-jest-local-library-problem
+npm install
 ```
 
-For example:
+And then run the my-app tests:
 
-```sh
-npx nx build myproject
+```
+npx nx test my-app
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+This should result in output such as this:
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```
+mark@hope:/var/tmp/nx-jest-local-library-problem$ npx nx test my-app
 
-## Add new projects
+> nx run my-app:test
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+Determining test suites to run...Couldn't find tsconfig.json. tsconfig-paths will be skipped
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+ NX   Jest: Got error running globalSetup - /var/tmp/nx-jest-local-library-problem/apps/my-app/src/tests/jest.setup.ts, reason: Cannot find module '@nx-jest-local-library-problem/my-lib'
+
+Require stack:
+- /var/tmp/nx-jest-local-library-problem/apps/my-app/src/tests/jest.setup.ts
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-util/build/requireOrImportModule.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-util/build/index.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-config/build/getCacheDirectory.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-config/build/Defaults.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-config/build/normalize.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/jest-config/build/index.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/@nx/jest/src/executors/jest/jest.impl.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/config/schema-utils.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/command-line/run/executor-utils.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/devkit-internals.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/utils/assert-workspace-validity.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/project-graph/build-project-graph.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/project-graph/project-graph.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/project-graph/file-utils.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/utils/package-manager.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/utils/package-json.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/utils/print-help.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/src/command-line/run/run.js
+- /var/tmp/nx-jest-local-library-problem/node_modules/nx/bin/run-executor.js
+Pass --verbose to see the stacktrace.
+
+
+—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+ NX   Ran target test for project my-app (2s)
+
+   ✖  1/1 failed
+   ✔  0/1 succeeded [0 read from cache]
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+To run the tests successfully, replace apps/my-app/project.json with apps/my-app/project.json-without-test-target
+and re-run the tests:
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
+```
+cp apps/my-app/project.json-without-test-target apps/my-app/project.json
+npx nx test my-app
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+Which gives results such as this:
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```
+mark@hope:/var/tmp/nx-externaldependency-jest-not-found$ npx nx test my-app
 
-## Set up CI!
+> nx run my-app:test  [existing outputs match the cache, left as is]
 
-### Step 1
+> jest
 
-To connect to Nx Cloud, run the following command:
+Determining test suites to run.../var/tmp/nx-externaldependency-jest-not-found/libs/my-lib/src/index.ts
+ PASS   my-app  src/tests/app.spec.ts
+  App Tests
+    ✓ should greet properly (2 ms)
 
-```sh
-npx nx connect
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.226 s
+Ran all test suites.
+
+—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+ NX   Successfully ran target test for project my-app (47ms)
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+While this is good, there are other contexts (e.g. the launch.json debugger and the Jest extension)
+that don't work with the jest.config.ts alone, as they obviously don't share the Jest plugin's
+default settings that are making this work.
