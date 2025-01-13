@@ -52,6 +52,13 @@
           "buildTarget": "my-app:build:production"
         }
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "apps/my-app/jest.config.ts"
+        // What goes here to make this work?
+      }
     }
   },
   "tags": []
